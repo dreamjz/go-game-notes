@@ -1,7 +1,6 @@
 package twenty48
 
 import (
-	"2048/2048/env"
 	"errors"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
@@ -17,7 +16,7 @@ import (
 )
 
 var (
-	mplusSamllFont  font.Face
+	mplusSmallFont  font.Face
 	mplusNormalFont font.Face
 	mplusBigFont    font.Face
 )
@@ -29,7 +28,7 @@ func init() {
 	}
 
 	const dpi = 72
-	mplusSamllFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+	mplusSmallFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
 		Size:    24,
 		DPI:     dpi,
 		Hinting: font.HintingVertical,
@@ -62,6 +61,7 @@ type TileData struct {
 	y     int
 }
 
+// Tile represents a tile information including TileData and animation states.
 type Tile struct {
 	current TileData
 
@@ -80,10 +80,16 @@ func (t *Tile) Pos() (int, int) {
 	return t.current.x, t.current.y
 }
 
-// NexPos returns the tile's next position.
-// NexPos is used only at testing so far.
-func (t *Tile) NexPos() (int, int) {
+// NextPos returns the tile's next position.
+// NextPos is used only at testing so far.
+func (t *Tile) NextPos() (int, int) {
 	return t.next.x, t.next.y
+}
+
+// Value returns the tile's current value.
+// Value is used only at testing so far.
+func (t *Tile) Value() int {
+	return t.current.value
 }
 
 // NextValue returns the tile's next value.
@@ -139,16 +145,16 @@ func currentOrNextTileAt(tiles map[*Tile]struct{}, x, y int) *Tile {
 		if t.IsMoving() {
 			if t.next.x != x || t.next.y != y || t.next.value == 0 {
 				continue
-			} else {
-				if t.current.x != x || t.current.y != y {
-					continue
-				}
 			}
-			if result != nil {
-				panic("not reach")
+		} else {
+			if t.current.x != x || t.current.y != y {
+				continue
 			}
-			result = t
 		}
+		if result != nil {
+			panic("not reach")
+		}
+		result = t
 	}
 	return result
 }
@@ -159,9 +165,6 @@ const (
 )
 
 func MoveTiles(tiles map[*Tile]struct{}, size int, dir Dir) bool {
-	if env.Debug {
-		log.Println("Dir:", dir.String())
-	}
 	vx, vy := dir.Vector()
 	tx := make([]int, 0, size)
 	ty := make([]int, 0, size)
@@ -366,7 +369,7 @@ func (t *Tile) Draw(boardImage *ebiten.Image) {
 	f := mplusBigFont
 	switch {
 	case 3 < len(str):
-		f = mplusSamllFont
+		f = mplusSmallFont
 	case 2 < len(str):
 		f = mplusNormalFont
 	}
