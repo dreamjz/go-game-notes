@@ -111,6 +111,7 @@ func (i *Input) Update() {
 			d, ok := vecToDir(dx, dy)
 			if !ok {
 				i.mouseState = mouseStateNone
+				break
 			}
 			i.mouseDir = d
 			i.mouseState = mouseStateSettled

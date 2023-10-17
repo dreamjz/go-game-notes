@@ -12,7 +12,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// TODO: There is a bug, fix it later
 	ebiten.SetWindowSize(twenty48.ScreenWidth, twenty48.ScreenHeight)
 	ebiten.SetWindowTitle("2048")
 	if err := ebiten.RunGame(game); err != nil {
